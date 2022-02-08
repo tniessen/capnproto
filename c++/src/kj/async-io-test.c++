@@ -3183,31 +3183,46 @@ KJ_TEST("OS handle pumpTo write buffer is full before pump") {
   auto pipe1 = ioContext.provider->newTwoWayPipe();
   auto pipe2 = ioContext.provider->newTwoWayPipe();
 
+  KJ_DBG("hi");
   auto bufferContent = fillWriteBuffer(KJ_ASSERT_NONNULL(pipe2.ends[0]->getFd()));
+  KJ_DBG("hi");
 
   // Also prime the input pipe with some buffered bytes.
   auto writePromise = pipe1.ends[0]->write("foo", 3);
+  KJ_DBG("hi");
   writePromise.poll(ws);
+  KJ_DBG("hi");
 
   // Start the pump and let it get blocked.
   auto pump = pipe1.ends[1]->pumpTo(*pipe2.ends[0]);
+  KJ_DBG("hi");
   KJ_EXPECT(!pump.poll(ws));
+  KJ_DBG("hi");
 
   // Queue another write, even.
   writePromise = writePromise
       .then([&]() { return pipe1.ends[0]->write("bar", 3); });
+  KJ_DBG("hi");
   writePromise.poll(ws);
+  KJ_DBG("hi");
 
   // See it all go through.
   expectRead(*pipe2.ends[1], bufferContent).wait(ws);
+  KJ_DBG("hi");
   expectRead(*pipe2.ends[1], "foobar").wait(ws);
+  KJ_DBG("hi");
 
   writePromise.wait(ws);
+  KJ_DBG("hi");
 
   pipe1.ends[0]->shutdownWrite();
+  KJ_DBG("hi");
   KJ_EXPECT(pump.wait(ws) == 6);
+  KJ_DBG("hi");
   pipe2.ends[0]->shutdownWrite();
+  KJ_DBG("hi");
   KJ_EXPECT(pipe2.ends[1]->readAllText().wait(ws) == "");
+  KJ_DBG("hi");
 }
 
 KJ_TEST("OS handle pumpTo write buffer is full before pump -- and pump ends early") {
